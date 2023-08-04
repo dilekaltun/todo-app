@@ -20,46 +20,48 @@
              placeholder="Create a new todo..."
              @keyup.enter="addTodo"
              required>
-      <button type="submit" @click="addTodo" class="absolute right-2.5 bottom-2 focus:outline-none px-4 py-2 items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 64 64">
-          <path fill="currentColor" d="M38 26V2H26v24H2v12h24v24h12V38h24V26z"/>
-        </svg>
-      </button>
     </div>
-    <div class="bg-white rounded flex flex-col h-auto drop-shadow-2xl divide-y divide-gray-200">
-      <fieldset v-if="todos.length < 1" class="flex justify-center mx-auto my-10 font-bold">
+    <div class="bg-white rounded flex flex-col h-auto mb-10 drop-shadow-2xl divide-y divide-gray-200">
+      <fieldset v-if="listTodos().length < 1" class="flex justify-center mx-auto my-10 font-bold">
         No todo items left!
       </fieldset>
-      <ul v-for="todo in todos" class="relative flex flex-col items-start justify-center divide-y divide-gray-200">
+      <ul v-for="todo in listTodos()"
+          class="relative flex flex-col items-start justify-center divide-y divide-gray-200">
         <li class="w-full p-4 flex items-center justify-between w-full">
-            <div class="flex items-center">
-              <input type="checkbox"
-                     :id="todo.id"
-                     v-model="todo.isCompleted"
-                     @click="completedTodo(todo.id)"
-                     class='appearance-none h-6 w-6 border-gray-300 border-[1px] rounded-full peer'/>
-              <label :for='todo.id'
-                     class='flex flex-col justify-center px-2 peer-checked:text-gray-300 peer-checked:line-through select-none'>
-                <span>{{ todo.content }}</span>
-              </label>
-            </div>
-            <button type="button" class="inline-flex items-center mr-2 opacity-0 hover:opacity-100" @click="removeTodo(todo.id)">
-              <img src="../images/icon-cross.svg" alt="cross-icon"/>
-            </button>
+          <div class="flex items-center">
+            <input type="checkbox"
+                   :id="todo.id"
+                   v-model="todo.isCompleted"
+                   @click="completedTodo(todo.id)"
+                   class='appearance-none h-6 w-6 border-gray-300 border-[1px] rounded-full peer'/>
+            <label :for='todo.id'
+                   class='flex flex-col justify-center px-2 peer-checked:text-gray-300 peer-checked:line-through select-none'>
+              <span>{{ todo.content }}</span>
+            </label>
+          </div>
+          <button type="button" class="inline-flex items-center mr-2 opacity-0 hover:opacity-100"
+                  @click="removeTodo(todo.id)">
+            <img src="../images/icon-cross.svg" alt="cross-icon"/>
+          </button>
         </li>
       </ul>
       <fieldset class="relative flex p-4 justify-between text-xs text-gray-500">
         <div>
-          <p>{{todos.length}} items left</p>
+          <p>{{ todos.length }} items left</p>
         </div>
-        <div class="flex gap-5">
-          <a href="#" class="text-blue-500 font-bold hover:text-gray-500">All</a>
-          <a href="#" class="hover:text-blue-500 font-bold text-gray-500">Active</a>
-          <a href="#" class="hover:text-blue-500 font-bold text-gray-500">Completed</a>
+        <div class="flex gap-5 font-bold">
+          <a href="#" @click="filterAllTodos"
+             :class="filterType === 'all' ? 'text-blue-500 hover:text-gray-500' : 'text-gray-500 hover:text-blue-500'">All</a>
+          <a href="#" @click="filterActiveTodos"
+             :class="filterType === 'active' ? 'text-blue-500 hover:text-gray-500' : 'text-gray-500 hover:text-blue-500'">Active</a>
+          <a href="#" @click="filterCompletedTodos"
+             :class="filterType === 'completed' ? 'text-blue-500 hover:text-gray-500' : 'text-gray-500 hover:text-blue-500'">Completed</a>
         </div>
         <div>
-          <button type="submit" class="focus:outline-none items-center">Clear Completed
-          </button>
+          <a href="#" @click="clearCompleted"
+             class="hover:text-blue-500 text-gray-500">
+            Clear Completed
+          </a>
         </div>
       </fieldset>
     </div>
@@ -67,12 +69,12 @@
 </template>
 
 <script>
-
 export default {
   name: 'IndexPage',
   data: () => ({
     inputContent: "",
     todos: [],
+    filterType: "all"
   }),
   methods: {
     addTodo() {
@@ -87,21 +89,53 @@ export default {
       };
 
       this.todos.push(todoItem)
-
       this.inputContent = "";
     },
     removeTodo(id) {
       this.todos = this.todos.filter(todo => todo.id !== id);
+      this.updateFilteredLists();
     },
     completedTodo(todoId) {
-      const todo = this.todos.findIndex(todo => todo.id === todoId);
-
-      this.todos[todo].isCompleted = !this.todos[todo].isCompleted;
-
-    }
+      const todoIndex = this.todos.findIndex(todo => todo.id === todoId);
+      this.todos[todoIndex].isCompleted = !this.todos[todoIndex].isCompleted;
+      this.updateFilteredLists();
+    },
+    filterCompletedTodos() {
+      this.filterType = "completed";
+      if (this.completedTodos.length < 1) {
+        window.alert("No completed items!");
+      }
+    },
+    filterAllTodos() {
+      this.filterType = "all";
+    },
+    filterActiveTodos() {
+      this.filterType = "active";
+      if (this.activeTodos.length < 1) {
+        window.alert("No active items left!");
+      }
+    },
+    listTodos() {
+      if (this.filterType === "completed") {
+        return this.todos.filter(todo => todo.isCompleted === true);
+      }
+      if (this.filterType === "active") {
+        return this.todos.filter(todo => todo.isCompleted === false);
+      }
+      return this.todos;
+    },
+    updateFilteredLists() {
+      this.completedTodos = this.todos.filter(todo => todo.isCompleted === true);
+      this.activeTodos = this.todos.filter(todo => todo.isCompleted === false);
+    },
+    clearCompleted() {
+      this.todos = this.todos.filter(todo => !todo.isCompleted);
+      this.updateFilteredLists();
+    },
   }
 }
 </script>
+
 
 <style>
 body {
