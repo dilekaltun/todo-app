@@ -132,7 +132,32 @@ export default {
       this.todos = this.todos.filter(todo => !todo.isCompleted);
       this.updateFilteredLists();
     },
-  }
+    updateLocalStorage() {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('todos', JSON.stringify(this.todos));
+      }
+    },
+    loadLocalStorage() {
+      if (typeof window !== 'undefined') {
+        const savedTodos = window.localStorage.getItem('todos');
+        if (savedTodos) {
+          this.todos = JSON.parse(savedTodos);
+        }
+      }
+    },
+  },
+  watch: {
+    todos: {
+      handler() {
+        this.updateLocalStorage();
+      },
+      deep: true,
+    },
+  },
+  created() {
+    this.loadLocalStorage();
+    this.updateFilteredLists();
+  },
 }
 </script>
 
