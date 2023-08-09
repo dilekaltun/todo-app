@@ -1,7 +1,7 @@
 <template>
   <section id="app" class="w-1/3 justify-center flex flex-col my-20 gap-8 absolute m-auto left-0 right-0">
     <div class="flex justify-between">
-      <span class="text-4xl font-semibold text-white tracking-[.35em]">TODO</span>
+      <span class="text-4xl font-semibold text-white tracking-[.35em] not-italic">TODO</span>
       <button>
         <img src="../images/icon-moon.svg" alt="moon">
       </button>
@@ -26,6 +26,11 @@
         No todo items left!
       </fieldset>
       <ul v-for="todo in listTodos()"
+          :key="todo.id"
+          :draggable="true"
+          @dragstart="startDrag(todo.id)"
+          @dragover.prevent
+          @drop="endDrag(todo.id)"
           class="relative flex flex-col items-start justify-center divide-y divide-gray-200">
         <li class="w-full p-4 flex items-center justify-between w-full">
           <div class="flex items-center">
@@ -74,7 +79,8 @@ export default {
   data: () => ({
     inputContent: "",
     todos: [],
-    filterType: "all"
+    filterType: "all",
+    draggingTodoId: null,
   }),
   methods: {
     addTodo() {
@@ -144,6 +150,28 @@ export default {
           this.todos = JSON.parse(savedTodos);
         }
       }
+    },
+    startDrag(todoId) {
+      this.draggingTodoId = todoId;
+    },
+
+    endDrag(targetTodoId) {
+      if (this.draggingTodoId !== targetTodoId) {
+        const draggedIndex = this.todos.findIndex(todo => todo.id === this.draggingTodoId);
+        const targetIndex = this.todos.findIndex(todo => todo.id === targetTodoId);
+
+        const draggedTodo = this.todos[draggedIndex];
+        this.todos.splice(draggedIndex, 1);
+        this.todos.splice(targetIndex, 0, draggedTodo);
+
+        this.todos.forEach((todo, index) => {
+          todo.id = index + 1;
+          todo.sorting = index + 1;
+        });
+
+        this.updateFilteredLists();
+      }
+      this.draggingTodoId = null;
     },
   },
   watch: {
