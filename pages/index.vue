@@ -1,9 +1,10 @@
 <template>
-  <section id="app" class="w-1/3 justify-center flex flex-col my-20 gap-8 absolute m-auto left-0 right-0">
+  <section id="app"
+           class="dark font-josefin w-1/3 justify-center flex flex-col my-20 gap-8 absolute m-auto left-0 right-0">
     <div class="flex justify-between">
       <span class="text-4xl font-semibold text-white tracking-[.35em] not-italic">TODO</span>
-      <button>
-        <img src="../images/icon-moon.svg" alt="moon">
+      <button @click="toggleDarkMode">
+        <img :src="require(`../images/icon-${themeIcon}.svg`)" :alt="themeIcon">
       </button>
     </div>
     <div class="relative">
@@ -16,7 +17,7 @@
       </div>
       <input type="text"
              v-model="inputContent"
-             class="block w-full p-4 pl-12 text-sm text-gray-900 border border-gray-300 rounded bg-white focus:outline-none focus:border-none dark:bg-white dark:border-none dark:placeholder-gray-400 dark:text-black"
+             class="block w-full p-4 pl-12 text-sm text-gray-900 rounded bg-white focus:border-none"
              placeholder="Create a new todo..."
              @keyup.enter="addTodo"
              required>
@@ -70,6 +71,9 @@
         </div>
       </fieldset>
     </div>
+
+    <p class="flex justify-center items-center text-dark-dark-grayish-blue">Drag and drop to reorder list</p>
+
   </section>
 </template>
 
@@ -81,6 +85,8 @@ export default {
     todos: [],
     filterType: "all",
     draggingTodoId: null,
+    isDarkMode: false,
+    themeIcon: 'moon'
   }),
   methods: {
     addTodo() {
@@ -154,7 +160,6 @@ export default {
     startDrag(todoId) {
       this.draggingTodoId = todoId;
     },
-
     endDrag(targetTodoId) {
       if (this.draggingTodoId !== targetTodoId) {
         const draggedIndex = this.todos.findIndex(todo => todo.id === this.draggingTodoId);
@@ -173,6 +178,12 @@ export default {
       }
       this.draggingTodoId = null;
     },
+    toggleDarkMode() {
+      this.isDarkMode = !this.isDarkMode;
+      document.body.dataset.theme = this.isDarkMode ? 'dark' : 'light';
+      localStorage.setItem('isDarkMode', this.isDarkMode);
+      this.themeIcon = this.isDarkMode ? 'sun' : 'moon';
+    },
   },
   watch: {
     todos: {
@@ -185,18 +196,36 @@ export default {
   created() {
     this.loadLocalStorage();
     this.updateFilteredLists();
+
+    if (process.client) {
+      const storedDarkMode = localStorage.getItem('isDarkMode');
+      if (storedDarkMode !== null) {
+        this.isDarkMode = JSON.parse(storedDarkMode);
+        document.body.dataset.theme = this.isDarkMode ? 'dark' : 'light';
+        this.themeIcon = this.isDarkMode ? 'sun' : 'moon';
+      }
+    }
   },
 }
 </script>
 
 
 <style>
-body {
+
+body[data-theme="dark"] {
+  background-image: url('../images/bg-desktop-dark.jpg');
+  background-color: #161722;
+}
+
+body[data-theme="light"] {
   background-image: url("../images/bg-desktop-light.jpg");
+  background-color: hsl(236, 33%, 92%);
+}
+
+body {
   background-repeat: no-repeat;
   background-size: cover;
   position: relative;
-  font-family: 'Josefin Sans', sans-serif;
 }
 
 input[type="checkbox"]:checked {
