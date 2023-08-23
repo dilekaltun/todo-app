@@ -1,4 +1,8 @@
 export default {
+  nitro: {
+    preset: 'vercel-edge',
+  },
+
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'todo-app',
