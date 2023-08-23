@@ -6,8 +6,7 @@
     "dev": "nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
-    "generate": "nuxt generate",
-    "postinstall": "nuxt prepare"
+    "generate": "nuxt generate"
   },
   "dependencies": {
     "autoprefixer": "^10.4.14",
