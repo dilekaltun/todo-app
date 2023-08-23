@@ -17,12 +17,12 @@
       </div>
       <input type="text"
              v-model="inputContent"
-             class="block w-full p-4 pl-12 text-sm text-gray-900 rounded bg-white focus:border-none"
+             class="block w-full p-4 pl-12 text-sm  text-gray-900 rounded bg-white focus:border-none focus:outline-none"
              placeholder="Create a new todo..."
              @keyup.enter="addTodo"
-             required>
+             required >
     </div>
-    <div class="bg-white rounded flex flex-col h-auto mb-10 drop-shadow-2xl divide-y divide-gray-200">
+    <div class="rounded flex flex-col h-auto mb-10 drop-shadow-2xl divide-y">
       <fieldset v-if="listTodos().length < 1" class="flex justify-center mx-auto my-10 font-bold">
         No todo items left!
       </fieldset>
@@ -32,8 +32,8 @@
           @dragstart="startDrag(todo.id)"
           @dragover.prevent
           @drop="endDrag(todo.id)"
-          class="relative flex flex-col items-start justify-center divide-y divide-gray-200">
-        <li class="w-full p-4 flex items-center justify-between w-full">
+          class="list-item relative flex flex-col items-start justify-center divide-y bg-white first:rounded-t">
+        <li class="w-full p-4 flex items-center justify-between w-full ">
           <div class="flex items-center">
             <input type="checkbox"
                    :id="todo.id"
@@ -51,7 +51,7 @@
           </button>
         </li>
       </ul>
-      <fieldset class="relative flex p-4 justify-between text-xs text-gray-500">
+      <fieldset class="bt-area relative flex p-4 justify-between text-xs text-gray-500 rounded-b">
         <div>
           <p>{{ todos.length }} items left</p>
         </div>
@@ -220,6 +220,37 @@ body[data-theme="dark"] {
 body[data-theme="light"] {
   background-image: url("../images/bg-desktop-light.jpg");
   background-color: hsl(236, 33%, 92%);
+}
+
+[data-theme='dark'] #app div:nth-child(3) {
+  background-color: #25273c;
+  color: #e4e5f1;
+
+  ul {
+    color: #e4e5f1;
+  }
+}
+
+[data-theme='light'] #app div:nth-child(3) {
+  background-color: #fafafa;
+}
+
+[data-theme='dark'] .bt-area {
+  background-color: #25273c;
+  border-color: #777a92;
+  color: #777a92;
+}
+
+[data-theme='dark'] input, .list-item {
+  background-color: #25273c;
+  color: #e4e5f1;
+  border-color: #777a92;
+}
+
+[data-theme='light'] .list-item, .bt-area {
+  background-color: #fafafa;
+  border-color: #d2d3db;
+  color: #25273c;
 }
 
 body {
